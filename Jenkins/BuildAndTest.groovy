@@ -10,9 +10,11 @@ pipeline {
 				print "Building shared services.."
 			    build 'GlobalServices'
 				build 'Security'
+				//This just updates the web test
+				build 'ERMWebTest'
 			}
 		} 
-		
+	
 		stage("Update project"){
 		    steps{
 		        script{
@@ -44,7 +46,8 @@ pipeline {
             steps{
                 script{
                     dir("/var/lib/jenkins/workspace/ERM/FrontEnd"){
-                        env.JAVA_HOME = "/home/ksmitw/java_versions/java_13/jdk-13.0.2"
+                        //Make this property driven somehow
+                        env.JAVA_HOME = "/usr/lib/jvm/java-1.13.0-openjdk-amd64"
                         sh "mvn clean install -DskipTests=true -P dev"
                     }
                 }
@@ -56,6 +59,35 @@ pipeline {
                 sh "cp /var/lib/jenkins/workspace/ERM/FrontEnd/target/FrontEnd-0.0.1-SNAPSHOT.war /home/ksmitw/deployments"
             }
         }
+        stage("Update webDriver ini file"){
+			steps{
+			    script{
+			        dir("/var/lib/jenkins/workspace/ERMWebTest/PythonWebDriver/main"){
+			            			    sh " python3 SetupConfig.py configuration.ini localhoast 8080"
+			        }
+			    }
 
-	}
+			}
+	    }
+	    stage("Start server"){
+	        steps{
+	            script{
+	                dir("/home/ksmitw/deployments/scripts"){
+	                    sh "./start.sh"
+	                }
+	            }
+	        }
+	    }
+	    stage("Stop Server"){
+	        steps{
+	            scripts{
+	                dir("/home/ksmitw/deployments/scripts"){
+	                    sh "./stop.sh"
+	                }
+	            }
+	        }
+	        
+	    }
+	}  
+
 }
