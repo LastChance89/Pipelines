@@ -4,7 +4,7 @@ pipeline {
 
 	stages{
 	    
-	    
+	    /*
 		stage("Build Dependencies"){
 			steps{
 				print "Building shared services.."
@@ -53,7 +53,7 @@ pipeline {
                 }
             }
         }
-        
+       
         stage("Move War file into run directory"){
             steps{
                 sh "cp /var/lib/jenkins/workspace/ERM/FrontEnd/target/FrontEnd-0.0.1-SNAPSHOT.war /home/ksmitw/deployments"
@@ -69,18 +69,37 @@ pipeline {
 
 			}
 	    }
+	     */
 	    stage("Start server"){
 	        steps{
 	            script{
 	                dir("/home/ksmitw/deployments/scripts"){
-	                    sh "./start.sh"
+	                    sh "nohup  ./start.sh &"
+	                      timeout(time: 5, unit: 'MINUTES'){
+    	                    sh "./status_check.sh"
+    	                }
 	                }
+	              
 	            }
 	        }
 	    }
+	    stage("Execute Selenium Test"){
+	        steps{
+	            script{
+	                dir("/var/lib/jenkins/workspace/ERMWebTest/PythonWebDriver/main"){
+	                    //fix this
+	                    sh "pip3 install -U selenium"
+	                    sh "pip3 install -U  webdriver_manager"
+	                    sh "python3 main.py"
+	                }
+	                
+	            }
+	        }
+	    }
+	 
 	    stage("Stop Server"){
 	        steps{
-	            scripts{
+	            script{
 	                dir("/home/ksmitw/deployments/scripts"){
 	                    sh "./stop.sh"
 	                }
