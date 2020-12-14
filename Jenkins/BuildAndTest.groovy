@@ -4,7 +4,7 @@ pipeline {
 
 	stages{
 	    
-	    /*
+	    
 		stage("Build Dependencies"){
 			steps{
 				print "Building shared services.."
@@ -69,7 +69,7 @@ pipeline {
 
 			}
 	    }
-	     */
+	    
 	    stage("Start server"){
 	        steps{
 	            script{
@@ -96,17 +96,16 @@ pipeline {
 	            }
 	        }
 	    }
-	 
-	    stage("Stop Server"){
-	        steps{
-	            script{
-	                dir("/home/ksmitw/deployments/scripts"){
-	                    sh "./stop.sh"
-	                }
-	            }
-	        }
-	        
-	    }
-	}  
+	}
+	post{
+		always{
+			script{
+				dir("/home/ksmitw/deployments/scripts"){
+					sh "./stop.sh"
+				}
+			}
+		}
+		
+	}
 
 }
