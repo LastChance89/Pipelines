@@ -1,10 +1,14 @@
 #!/usr/bin/env groovy
+
+def url = "localhost"
+def port = "9280"
+
 pipeline {
+    
     agent any 
 
 	stages{
-	    
-	    
+
 		stage("Build Dependencies"){
 			steps{
 				print "Building shared services.."
@@ -34,8 +38,8 @@ pipeline {
     			   prop.setProperty("spring.datasource.username", "ac1")
     			   prop.setProperty("spring.datasource.password", "a12gbase41%@!")
     			   prop.setProperty("spring.datasource.url","jdbc:mysql://127.0.0.1:3306/ERM")
-    			   prop.setProperty("server.address","localhost")
-    			   prop.setProperty("server.port","8080")
+    			   prop.setProperty("server.address",url)
+    			   prop.setProperty("server.port", port)
     			   prop.store(new FileOutputStream("/var/lib/jenkins/workspace/ERM/FrontEnd/src/main/resources/application.properties"), "");
 
 		      }
@@ -63,7 +67,7 @@ pipeline {
 			steps{
 			    script{
 			        dir("/var/lib/jenkins/workspace/ERMWebTest/PythonWebDriver/main"){
-			            			    sh " python3 SetupConfig.py configuration.ini localhoast 8080"
+			            			    sh "python3 SetupConfig.py configuration.ini ${url} ${port}"
 			        }
 			    }
 
@@ -83,6 +87,7 @@ pipeline {
 	            }
 	        }
 	    }
+	    	
 	    stage("Execute Selenium Test"){
 	        steps{
 	            script{
@@ -97,6 +102,7 @@ pipeline {
 	        }
 	    }
 	}
+
 	post{
 		always{
 			script{
@@ -105,7 +111,5 @@ pipeline {
 				}
 			}
 		}
-		
 	}
-
 }
